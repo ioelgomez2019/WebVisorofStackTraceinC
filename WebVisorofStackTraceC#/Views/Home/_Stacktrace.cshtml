@@ -1,0 +1,145 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Stacktrace";
+    var stacktrace = ViewBag.stacktrace as System.Data.DataTable;
+    var tipoError = stacktrace.Rows[0]["cTipErrGen"].ToString();
+    var (textoError, claseBadge) = tipoError switch
+    {
+        "1" => ("Error de Base de Datos", "bg-danger"),
+        "2" => ("Error de CoreBank", "bg-warning"),
+        _ => ("Tipo desconocido", "bg-secondary")
+    };
+    
+
+}
+<div id="vistastacktrace">
+    <div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Detalles del Error #@stacktrace.Rows[0]["nIDLogErr"]</h5>
+        </div>
+        <div class="card-body">
+            <!-- Sección de Información General -->
+            <div class="mb-4">
+                <h6 class="text-info border-bottom pb-2">Información General</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Módulo:</strong> @stacktrace.Rows[0]["cNomModGen"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Formulario:</strong> @stacktrace.Rows[0]["cNomForGen"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Objeto:</strong> @stacktrace.Rows[0]["cNomObjGen"]</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Tipo Error:</strong> <span class="badge bg-danger">@stacktrace.Rows[0]["cTipErrGen"]</span></p>
+                            <div class="col-md-4">
+                                <p>
+                                    <strong>Tipo Error:</strong>
+                                    @{
+                                        // Obtener y normalizar el valor del tipo de error
+                                        string valorOriginalTipoError = stacktrace.Rows[0]["cTipErrGen"]?.ToString();
+                                        string tipoErrorNormalizado = valorOriginalTipoError?
+                                        .Trim()
+                                        .ToLower()
+                                        .Replace(" ", "")
+                                        .Replace("\t", "")
+                                        .Replace("\n", "");
+
+                                        // Variables con nombres descriptivos
+                                        string descripcionTipoError;
+                                        string estiloBadge;
+
+                                        // Lógica de mapeo
+                                        if (string.IsNullOrEmpty(tipoErrorNormalizado))
+                                        {
+                                            descripcionTipoError = "Sin tipo especificado";
+                                            estiloBadge = "bg-secondary";
+                                        }
+                                        else if (tipoErrorNormalizado == "1" || tipoErrorNormalizado == "01" ||
+                                        tipoErrorNormalizado.Contains("base") || tipoErrorNormalizado.StartsWith("b"))
+                                        {
+                                            descripcionTipoError = "Error de Base de Datos";
+                                            estiloBadge = "bg-danger";
+                                        }
+                                        else if (tipoErrorNormalizado == "2" || tipoErrorNormalizado == "02" ||
+                                        tipoErrorNormalizado.Contains("core") || tipoErrorNormalizado.StartsWith("c"))
+                                        {
+                                            descripcionTipoError = "Error de CoreBank";
+                                            estiloBadge = "bg-warning";
+                                        }
+                                        else
+                                        {
+                                            descripcionTipoError = $"Tipo no reconocido: '{valorOriginalTipoError}'";
+                                            estiloBadge = "bg-secondary";
+                                        }
+                                    }
+                                    <span class="badge @estiloBadge">@descripcionTipoError</span>
+                                </p>
+                            </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Línea Error:</strong> @stacktrace.Rows[0]["nLinGenErr"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Fecha/Hora:</strong> @stacktrace.Rows[0]["dFecHorGen"]</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Detalle del Error -->
+            <div class="mb-4">
+                <h6 class="text-info border-bottom pb-2">Detalle del Error</h6>
+                <div class="alert alert-danger">
+                    <h5>@stacktrace.Rows[0]["cCabErrGen"]</h5>
+                    <p class="mb-0">@stacktrace.Rows[0]["cDesErrGen"]</p>
+
+                </div>
+            </div>
+
+            <!-- Sección de Auditoría -->
+            <div class="mb-4">
+                <h6 class="text-info border-bottom pb-2">Información de Auditoría</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Usuario:</strong> @stacktrace.Rows[0]["cAuditUser"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Estación:</strong> @stacktrace.Rows[0]["cAuditStation"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Cliente:</strong> @stacktrace.Rows[0]["cAuditClient"]</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Fecha Auditoría:</strong> @stacktrace.Rows[0]["dAuditDate"]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<style>
+    .card {
+        border-radius: 0.35rem;
+    }
+    .card-header {
+        border-radius: 0.35rem 0.35rem 0 0 !important;
+    }
+    .border-bottom {
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+    p {
+        margin-bottom: 0.5rem;
+    }
+</style>
